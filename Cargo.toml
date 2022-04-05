@@ -1,0 +1,10 @@
+[package]
+name = "freertos-sys2"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/junelife/freertos-sys2"
+documentation = "https://docs.rs/freertos-sys2"
+description = "Low-level bindings to FreeRTOS. User's responsibility to provide the FreeRTOS"
+
+[dependencies]
