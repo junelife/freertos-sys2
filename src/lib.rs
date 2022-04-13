@@ -49,9 +49,24 @@ extern "C" {
         xTicksToWait: TickType_t,
         xCopyPosition: BaseType_t,
     ) -> BaseType_t;
+
+    /*
+    pub fn xQueueGenericCreateStatic(
+        uxQueueLength: UBaseType_t,
+        uxItemSize: UBaseType_t,
+        pucQueueStorage: *mut u8,
+        pxStaticQueue: *mut StaticQueue_t,
+        ucQueueType: u8,
+    ) -> QueueHandle_t;
+    */
+
+    pub fn xQueueCreateMutex(ucQueueType: u8) -> QueueHandle_t;
+
+    pub fn vQueueDelete(xQueue: QueueHandle_t);
 }
 
 pub type BaseType_t = i32;
+pub type UBaseType_t = u32;
 
 // FIXME: these function definitions rely on TickType_t being uint32_t, freertos can be configured
 // to use different tick sizes. check `FreeRTOS_config.h`. We may need to provide a feature to
@@ -74,11 +89,20 @@ pub const queueOVERWRITE: BaseType_t = 2;
 
 pub const semGIVE_BLOCK_TIME: TickType_t = 0;
 
-pub unsafe fn xSemaphoreTake(xSemaphore: SemaphoreHandle_t, xBlockTime: TickType_t) {
-    unsafe { xQueueGenericReceive(xSemaphore, core::ptr::null(), xBlockTime, pdFALSE) };
+pub const queueQUEUE_TYPE_BASE: u8 = 0;
+pub const queueQUEUE_TYPE_SET: u8 = 0;
+pub const queueQUEUE_TYPE_MUTEX: u8 = 1;
+pub const queueQUEUE_TYPE_COUNTING_SEMAPHORE: u8 = 2;
+pub const queueQUEUE_TYPE_BINARY_SEMAPHORE: u8 = 3;
+pub const queueQUEUE_TYPE_RECURSIVE_MUTEX: u8 = 4;
+
+pub const portMAX_DELAY: TickType_t = TickType_t::MAX;
+
+pub unsafe fn xSemaphoreTake(xSemaphore: SemaphoreHandle_t, xBlockTime: TickType_t) -> BaseType_t {
+    unsafe { xQueueGenericReceive(xSemaphore, core::ptr::null(), xBlockTime, pdFALSE) }
 }
 
-pub unsafe fn xSemaphoreGive(xSemaphore: SemaphoreHandle_t) {
+pub unsafe fn xSemaphoreGive(xSemaphore: SemaphoreHandle_t) -> BaseType_t {
     unsafe {
         xQueueGenericSend(
             xSemaphore,
@@ -86,5 +110,13 @@ pub unsafe fn xSemaphoreGive(xSemaphore: SemaphoreHandle_t) {
             semGIVE_BLOCK_TIME,
             queueSEND_TO_BACK,
         )
-    };
+    }
+}
+
+pub unsafe fn xSemaphoreCreateMutex() -> SemaphoreHandle_t {
+    unsafe { xQueueCreateMutex(queueQUEUE_TYPE_MUTEX) }
+}
+
+pub unsafe fn vSemaphoreDelete(xSemaphore: SemaphoreHandle_t) {
+    unsafe { vQueueDelete(xSemaphore) }
 }
