@@ -63,6 +63,9 @@ extern "C" {
     pub fn xQueueCreateMutex(ucQueueType: u8) -> QueueHandle_t;
 
     pub fn vQueueDelete(xQueue: QueueHandle_t);
+
+    pub fn pvPortMalloc(xWantedSize: usize) -> *mut c_void;
+    pub fn vPortFree(pv: *mut c_void);
 }
 
 pub type BaseType_t = i32;
